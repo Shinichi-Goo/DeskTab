@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Shortcut } from "../types";
@@ -12,6 +13,9 @@ interface ShortcutItemProps {
   onEdit: () => void;
 }
 
+const LONG_PRESS_MS = 600;
+const LONG_PRESS_MOVE_TOLERANCE = 5;
+
 export function ShortcutItem({ shortcut, isEditMode, onRemove, onEdit }: ShortcutItemProps) {
   const {
     attributes,
@@ -22,8 +26,76 @@ export function ShortcutItem({ shortcut, isEditMode, onRemove, onEdit }: Shortcu
     isDragging,
   } = useSortable({
     id: shortcut.id,
-    disabled: false, 
+    disabled: false,
   });
+
+  const itemRef = useRef<HTMLDivElement | null>(null);
+  const setRefs = (node: HTMLDivElement | null) => {
+    setNodeRef(node);
+    itemRef.current = node;
+  };
+
+  const [showActions, setShowActions] = useState(false);
+  const pressTimerRef = useRef<number | null>(null);
+  const pressStartPosRef = useRef<{ x: number; y: number } | null>(null);
+
+  const clearPressTimer = () => {
+    if (pressTimerRef.current !== null) {
+      window.clearTimeout(pressTimerRef.current);
+      pressTimerRef.current = null;
+    }
+  };
+
+  const handlePointerDownCapture = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (isEditMode) return;
+    pressStartPosRef.current = { x: e.clientX, y: e.clientY };
+    clearPressTimer();
+    pressTimerRef.current = window.setTimeout(() => {
+      setShowActions(true);
+    }, LONG_PRESS_MS);
+  };
+
+  const handlePointerMoveCapture = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!pressStartPosRef.current) return;
+    const dx = Math.abs(e.clientX - pressStartPosRef.current.x);
+    const dy = Math.abs(e.clientY - pressStartPosRef.current.y);
+    if (dx > LONG_PRESS_MOVE_TOLERANCE || dy > LONG_PRESS_MOVE_TOLERANCE) {
+      clearPressTimer();
+    }
+  };
+
+  const handlePointerEndCapture = () => {
+    clearPressTimer();
+    pressStartPosRef.current = null;
+  };
+
+  useEffect(() => {
+    if (isDragging) clearPressTimer();
+  }, [isDragging]);
+
+  useEffect(() => () => clearPressTimer(), []);
+
+  useEffect(() => {
+    if (!showActions) return;
+    const handleOutside = (e: PointerEvent) => {
+      if (itemRef.current && !itemRef.current.contains(e.target as Node)) {
+        setShowActions(false);
+      }
+    };
+    const t = window.setTimeout(() => {
+      document.addEventListener("pointerdown", handleOutside);
+    }, 100);
+    return () => {
+      window.clearTimeout(t);
+      document.removeEventListener("pointerdown", handleOutside);
+    };
+  }, [showActions]);
+
+  useEffect(() => {
+    if (isEditMode) setShowActions(false);
+  }, [isEditMode]);
+
+  const showButtons = isEditMode || showActions;
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -59,31 +131,39 @@ export function ShortcutItem({ shortcut, isEditMode, onRemove, onEdit }: Shortcu
 
   return (
     <div
-      ref={setNodeRef}
+      ref={setRefs}
       style={style}
       className={cn(
         "site-card glass-panel rounded-2xl p-3 relative flex flex-col group cursor-grab w-full",
-        isEditMode && "jiggle",
+        showButtons && "jiggle",
         isDragging && "opacity-50 scale-105 shadow-2xl z-50 cursor-grabbing"
       )}
+      onPointerDownCapture={handlePointerDownCapture}
+      onPointerMoveCapture={handlePointerMoveCapture}
+      onPointerUpCapture={handlePointerEndCapture}
+      onPointerCancelCapture={handlePointerEndCapture}
       {...attributes}
       {...listeners}
     >
-      {isEditMode && (
+      {showButtons && (
         <>
           <button
+            onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => {
               e.stopPropagation();
+              setShowActions(false);
               onRemove();
             }}
             className="absolute -top-2 -left-2 w-7 h-7 bg-red-500/90 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-red-500 hover:scale-110 transition-all z-20 cursor-pointer pointer-events-auto border border-white/20"
           >
             <span className="text-[10px] font-bold">✕</span>
           </button>
-          
+
           <button
+            onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => {
               e.stopPropagation();
+              setShowActions(false);
               onEdit();
             }}
             className="absolute -top-2 -right-2 w-7 h-7 bg-blue-500/90 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-blue-500 hover:scale-110 transition-all z-20 cursor-pointer pointer-events-auto border border-white/20"
@@ -95,12 +175,14 @@ export function ShortcutItem({ shortcut, isEditMode, onRemove, onEdit }: Shortcu
 
       {/* The Icon Box */}
       <a
-        href={isEditMode ? undefined : shortcut.url}
+        href={showButtons ? undefined : shortcut.url}
         draggable={false}
         onClick={(e) => {
           if (isEditMode) {
             e.preventDefault();
             onEdit();
+          } else if (showActions) {
+            e.preventDefault();
           }
         }}
         className="flex flex-col flex-1 focus:outline-none pointer-events-auto"

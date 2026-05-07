@@ -152,13 +152,13 @@ export default function App() {
       {/* Dark overlay for readability if custom wallpaper is used */}
       {bgImage && <div className="absolute inset-0 bg-black/20 pointer-events-none" />}
 
-      <div className="relative z-10 w-full h-full flex flex-col">
-        <SearchBar 
+      <div className="relative z-10 w-full h-screen overflow-y-auto overflow-x-hidden flex flex-col">
+        <SearchBar
           logoStyle={logoStyle}
           logoText={logoText}
           logoFont={logoFont}
         />
-        
+
         <ShortcutGrid
           shortcuts={shortcuts}
           setShortcuts={setShortcuts}
