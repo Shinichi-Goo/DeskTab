@@ -8,12 +8,7 @@ import { Settings2, Check, Moon, Sun, Image as ImageIcon, SlidersHorizontal, Tra
 const INITIAL_SHORTCUTS: Shortcut[] = [
   { id: "1", title: "Gmail", url: "https://mail.google.com" },
   { id: "2", title: "YouTube", url: "https://youtube.com" },
-  { id: "3", title: "ChatGPT", url: "https://chatgpt.com" },
-  { id: "4", title: "Z-library", url: "https://z-lib.org" },
-  { id: "5", title: "Claude", url: "https://claude.ai" },
   { id: "6", title: "Gemini", url: "https://gemini.google.com" },
-  { id: "7", title: "Grok", url: "https://x.com/i/grok", type: "text", text: "X", color: "from-zinc-100 to-zinc-300" },
-  { id: "8", title: "Notebook LM", url: "https://notebooklm.google.com" },
 ];
 
 const compressImage = (file: File, callback: (dataUrl: string) => void) => {
