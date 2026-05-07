@@ -8,7 +8,7 @@ import { Settings2, Check, Moon, Sun, Image as ImageIcon, SlidersHorizontal, Tra
 const INITIAL_SHORTCUTS: Shortcut[] = [
   { id: "1", title: "Gmail", url: "https://mail.google.com" },
   { id: "2", title: "YouTube", url: "https://youtube.com" },
-  { id: "6", title: "Gemini", url: "https://gemini.google.com" },
+  { id: "3", title: "Gemini", url: "https://gemini.google.com" },
 ];
 
 const compressImage = (file: File, callback: (dataUrl: string) => void) => {
