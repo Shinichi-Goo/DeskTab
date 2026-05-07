@@ -16,8 +16,6 @@ import {
 } from "@dnd-kit/sortable";
 import { ShortcutItem } from "./ShortcutItem";
 import { Shortcut } from "../types";
-import { Plus } from "lucide-react";
-
 interface ShortcutGridProps {
   shortcuts: Shortcut[];
   setShortcuts: (shortcuts: Shortcut[]) => void;
@@ -85,18 +83,6 @@ export function ShortcutGrid({
             ))}
           </SortableContext>
 
-          {/* Add Button */}
-          <button
-            onClick={onAddClick}
-            className="border-2 border-dashed border-white/20 rounded-2xl p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 hover:border-white/40 transition-colors w-full aspect-square add-btn"
-          >
-            <div className="w-[30%] aspect-square rounded-full flex items-center justify-center mb-2 add-btn-icon-wrapper">
-              <span className="text-2xl font-light text-muted opacity-60">+</span>
-            </div>
-            <span className="text-sm font-medium truncate px-2 add-btn-text">
-              Add Shortcut
-            </span>
-          </button>
         </div>
       </DndContext>
     </div>
