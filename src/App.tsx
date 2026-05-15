@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ChangeEvent } from "react";
 import { SearchBar } from "./components/SearchBar";
 import { ShortcutGrid } from "./components/ShortcutGrid";
 import { ShortcutModal } from "./components/ShortcutModal";
@@ -9,6 +9,19 @@ const INITIAL_SHORTCUTS: Shortcut[] = [
   { id: "1", title: "Gmail", url: "https://mail.google.com" },
   { id: "2", title: "YouTube", url: "https://youtube.com" },
   { id: "3", title: "Gemini", url: "https://gemini.google.com" },
+];
+
+const BUILT_IN_WALLPAPERS = [
+  {
+    id: "sonoma-horizon",
+    name: "Sonoma",
+    src: "/wallpapers/sonoma-horizon.png",
+  },
+  {
+    id: "sequoia-sunrise",
+    name: "Sequoia",
+    src: "/wallpapers/sequoia-sunrise.png",
+  },
 ];
 
 const compressImage = (file: File, callback: (dataUrl: string) => void) => {
@@ -122,7 +135,7 @@ export default function App() {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
 
-  const handleBgUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBgUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       compressImage(file, (dataUrl) => {
@@ -219,6 +232,36 @@ export default function App() {
               <label className="text-xs uppercase tracking-wider font-medium text-white mix-blend-difference opacity-80 flex items-center gap-2">
                 <ImageIcon size={14} /> Wallpaper
               </label>
+              <div className="grid grid-cols-2 gap-2">
+                {BUILT_IN_WALLPAPERS.map((wallpaper) => {
+                  const isSelected = bgImage === wallpaper.src;
+
+                  return (
+                    <button
+                      key={wallpaper.id}
+                      type="button"
+                      onClick={() => setBgImage(wallpaper.src)}
+                      className={`relative h-16 overflow-hidden rounded-xl border transition-all ${
+                        isSelected
+                          ? "border-blue-400 ring-2 ring-blue-500/60"
+                          : "border-white/20 hover:border-white/45"
+                      }`}
+                      title={wallpaper.name}
+                      aria-label={`Use ${wallpaper.name} wallpaper`}
+                    >
+                      <img
+                        src={wallpaper.src}
+                        alt=""
+                        className="h-full w-full object-cover"
+                        draggable={false}
+                      />
+                      <span className="absolute inset-x-0 bottom-0 bg-black/45 px-2 py-1 text-left text-[11px] font-medium text-white">
+                        {wallpaper.name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
               <div className="flex gap-2">
                 <label className="flex-1 text-center py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm cursor-pointer transition-colors text-white font-medium select-none">
                   Upload
