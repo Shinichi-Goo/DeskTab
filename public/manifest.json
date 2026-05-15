@@ -1,13 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "Custom Mac New Tab",
+  "name": "DeskTab",
+  "short_name": "DeskTab",
   "version": "1.0",
-  "description": "A beautiful, Mac-like new tab page with draggable shortcuts",
+  "description": "DeskTab turns your new tab into a clean, Mac-inspired desktop for shortcuts and quick access.",
   "chrome_url_overrides": {
     "newtab": "index.html"
   },
   "action": {
-    "default_title": "Mac New Tab"
+    "default_title": "DeskTab"
   },
   "permissions": [
     "storage"
